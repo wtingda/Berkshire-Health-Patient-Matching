@@ -3,6 +3,8 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
+from kivy.core.window import Window
+import csv
 
 class EnterInfo(GridLayout):
 
@@ -19,17 +21,26 @@ class EnterInfo(GridLayout):
             self.fields.append(TextInput(multiline=False, halign="center"))
             self.add_widget(self.fields[i])
 
-        self.add_widget(Button(text='Export'))
+        export_btn = Button(text='Export')
+        export_btn.bind(on_press=self.export_clicked)
+        self.add_widget(export_btn)
 
         add_btn = Button(text='Add')
         add_btn.bind(on_press=self.add_clicked)
         self.add_widget(add_btn)
 
     def add_clicked(self, btn):
-        self.data.append([i.text for i in self.fields])
+        row = []
+        for entry in self.fields:
+            row.append(entry.text)
+            entry.text = ''
+        self.data.append(row)
 
     def export_clicked(self, btn):
-        print(self.data)
+        with open("output.csv", "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerows(self.data)
+        Window.close()
 
 class BerkshireHealthSystemsApp(App):
 
