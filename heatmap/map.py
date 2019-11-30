@@ -1,43 +1,42 @@
 from gmplot import gmplot
 
-# Place map
-# gmap = gmplot.GoogleMapPlotter(37.766956, -122.438481, 13)
-# gmap = gmplot.GoogleMapPlotter.from_geocode("San Francisco")
+import numpy as np
 
-# # # Polygon
-# golden_gate_park_lats, golden_gate_park_lons = zip(*[
-#     (37.771269, -122.511015),
-#     (37.773495, -122.464830),
-#     (37.774797, -122.454538),
-#     (37.771988, -122.454018),
-#     (37.773646, -122.440979),
-#     (37.772742, -122.440797),
-#     (37.771096, -122.453889),
-#     (37.768669, -122.453518),
-#     (37.766227, -122.460213),
-#     (37.764028, -122.510347),
-#     (37.771269, -122.511015)
-#     ])
-# gmap.heatmap(golden_gate_park_lats, golden_gate_park_lons)
+tl = (42.745941, -73.264959)
+tr = (42.738711, -72.948854)
+bl = (42.051087, -73.493993)
+br = (42.041317, -73.056959)
 
-# # Scatter points
-# top_attraction_lats, top_attraction_lons = zip(*[
-#     (37.769901, -122.498331),
-#     (37.768645, -122.475328),
-#     (37.771478, -122.468677),
-#     (37.769867, -122.466102),
-#     (37.767187, -122.467496),
-#     (37.770104, -122.470436)
-#     ])
-# # gmap.scatter(top_attraction_lats, top_attraction_lons, '#3B0B39', size=40, marker=False)
+# lat1 = tl[0] - tr[0]
+# lat2 = bl[0] - br[0]
+# long1 = tl[1] - tr[1]
+# long2 = bl[1] - br[1]
 #
-# # Marker
-# # hidden_gem_lat, hidden_gem_lon = 37.770776, -122.461689
-# # gmap.marker(hidden_gem_lat, hidden_gem_lon, 'cornflowerblue')
+# # choose the shorter longitude and latitude for sampling
+# lat = min(lat1, lat2)
+# long = min(long1, long2)
 
+num_patients = 294
+num_clinics = 30
+# todo: search if there's 2d random generating coordinates
+patients_latitude = np.random.uniform(br[0], tl[0], num_patients)
+# print(patients_latitude)
+patients_longtitude = np.random.uniform(bl[1], tr[1], num_patients)
+# print(patients_longtitude)
+patients_coord = zip(patients_latitude, patients_longtitude)
+# for tup in patients_coord:
+#     print(tup)
+clinics_latitude = np.random.uniform(br[0], tl[0], num_clinics)
+# print(patients_latitude)
+clinics_longtitude = np.random.uniform(bl[1], tr[1], num_clinics)
 
 # berkshire_coord = (42.3118, 73.1822)
 gmap = gmplot.GoogleMapPlotter(42.446, -73.192, 10.5)
+
+gmap.heatmap(patients_latitude, patients_longtitude)
+
+for x,y in zip(clinics_latitude, clinics_longtitude):
+    gmap.marker(x,y, "darkred")
 
 # todo: add outline on map
 
