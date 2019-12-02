@@ -1,9 +1,13 @@
-from gmplot import gmplot
+import random
+
 import googlemaps
 
 import random
 import numpy as np
 
+import gmplot
+
+# we haven't found a way to automatically locate berkshire county on goolge map using gmplot, so we got the rough coordinates of the four corners on map
 tl = (42.745941, -73.264959)
 tr = (42.738711, -72.948854)
 bl = (42.051087, -73.493993)
@@ -64,6 +68,30 @@ clinics_latitude = np.random.uniform(br[0], tl[0], num_clinics)
 # print(patients_latitude)
 clinics_longtitude = np.random.uniform(bl[1], tr[1], num_clinics)
 
+def random_float(lower, upper):
+    diff = upper - lower
+    val = random.random()*diff + lower
+    while val > upper:
+        val = random.random()*diff + lower
+    return val
+
+patients_latitude = [random_float(br[0], tl[0]) for _ in range(num_patients)]
+patients_longtitude = [random_float(bl[1], tr[1]) for _ in range(num_patients)]
+clinics_latitude = [random_float(br[0], tl[0]) for _ in range(num_clinics)]
+clinics_longtitude = [random_float(bl[1], tr[1]) for _ in range(num_clinics)]
+# patients_latitude = np.random.uniform(br[0], tl[0], num_patients)
+# # print(patients_latitude)
+# patients_longtitude = np.random.uniform(bl[1], tr[1], num_patients)
+# # print(patients_longtitude)
+# patients_coord = zip(patients_latitude, patients_longtitude)
+# # for tup in patients_coord:
+# #     print(tup)
+# clinics_latitude = np.random.uniform(br[0], tl[0], num_clinics)
+# # print(patients_latitude)
+# clinics_longtitude = np.random.uniform(bl[1], tr[1], num_clinics)
+
+
+####################################################################################
 # berkshire_coord = (42.3118, 73.1822)
 gmap = gmplot.GoogleMapPlotter(gcoderesult[0]['geometry']['location']['lat'], gcoderesult[0]['geometry']['location']['lng'], 10.5)
 
