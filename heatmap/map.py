@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 import random
-=======
-from gmplot import gmplot
+
 import googlemaps
->>>>>>> 27b3ef9aed94178fc1a2ababa86c5c0ea53e54d0
 
 from gmplot import gmplot
 
