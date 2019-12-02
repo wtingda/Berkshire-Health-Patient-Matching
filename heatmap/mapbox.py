@@ -1,5 +1,4 @@
 from gmplot import gmplot
-import googlemaps
 
 import numpy as np
 
@@ -16,9 +15,6 @@ br = (42.041317, -73.056959)
 # # choose the shorter longitude and latitude for sampling
 # lat = min(lat1, lat2)
 # long = min(long1, long2)
-gmaps = googlemaps.Client(key="AIzaSyDE_MLUeIdpPgnCWEV-ZgscLCO1734Ax3w")
-gcoderesult = gmaps.geocode("Berkshire County")
-print(gcoderesult)
 
 num_patients = 294
 num_clinics = 30
