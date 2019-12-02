@@ -1,6 +1,7 @@
 from gmplot import gmplot
 import googlemaps
 
+import random
 import numpy as np
 
 tl = (42.745941, -73.264959)
@@ -18,10 +19,39 @@ br = (42.041317, -73.056959)
 # long = min(long1, long2)
 gmaps = googlemaps.Client(key="AIzaSyDE_MLUeIdpPgnCWEV-ZgscLCO1734Ax3w")
 gcoderesult = gmaps.geocode("Berkshire County")
-print(gcoderesult)
+#print(gcoderesult[0]['geometry']['location']['lat'])
 
-num_patients = 294
+
+clinics_lat = []
+clinics_long = []
+
+# imports list of churches and finds their coordinates via geocode
+with open("churches.txt",'r') as f:
+    lines = f.readlines()
+    for i in range(len(lines)):
+        if i % 2 == 1:
+            address = lines[i].strip()
+            coords = gmaps.geocode(address)
+            clinics_lat.append(coords[0]['geometry']['location']['lat'])
+            clinics_long.append(coords[0]['geometry']['location']['lng'])
+
+
+num_patients = 300
 num_clinics = 30
+
+patients_lat = []
+patients_long = []
+
+# samples randomly from list of Berkshire addresses
+with open("berkshire.csv", 'r') as f:
+
+    data = f.readlines()
+    dataLen = len(data)
+    for i in range(num_patients):
+        index = random.randint(0,dataLen-1)
+        patients_long.append(float(data[index].split(',')[0]))
+        patients_lat.append(float(data[index].split(',')[1]))
+
 # todo: search if there's 2d random generating coordinates
 patients_latitude = np.random.uniform(br[0], tl[0], num_patients)
 # print(patients_latitude)
@@ -35,11 +65,11 @@ clinics_latitude = np.random.uniform(br[0], tl[0], num_clinics)
 clinics_longtitude = np.random.uniform(bl[1], tr[1], num_clinics)
 
 # berkshire_coord = (42.3118, 73.1822)
-gmap = gmplot.GoogleMapPlotter(42.446, -73.192, 10.5)
+gmap = gmplot.GoogleMapPlotter(gcoderesult[0]['geometry']['location']['lat'], gcoderesult[0]['geometry']['location']['lng'], 10.5)
 
-gmap.heatmap(patients_latitude, patients_longtitude)
+gmap.heatmap(patients_lat, patients_long)
 
-for x,y in zip(clinics_latitude, clinics_longtitude):
+for x,y in zip(clinics_lat, clinics_long):
     gmap.marker(x,y, "darkred")
 
 # todo: add outline on map
