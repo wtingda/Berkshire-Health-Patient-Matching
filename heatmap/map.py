@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 import random
+=======
+from gmplot import gmplot
+import googlemaps
+>>>>>>> 27b3ef9aed94178fc1a2ababa86c5c0ea53e54d0
 
 from gmplot import gmplot
 
@@ -8,6 +13,17 @@ tr = (42.738711, -72.948854)
 bl = (42.051087, -73.493993)
 br = (42.041317, -73.056959)
 
+# lat1 = tl[0] - tr[0]
+# lat2 = bl[0] - br[0]
+# long1 = tl[1] - tr[1]
+# long2 = bl[1] - br[1]
+#
+# # choose the shorter longitude and latitude for sampling
+# lat = min(lat1, lat2)
+# long = min(long1, long2)
+gmaps = googlemaps.Client(key="AIzaSyDE_MLUeIdpPgnCWEV-ZgscLCO1734Ax3w")
+gcoderesult = gmaps.geocode("Berkshire County")
+print(gcoderesult)
 
 # generating coordinates of patients and clinics
 # todo: integrate with patient & clinic info with real / tingda & tongyu
