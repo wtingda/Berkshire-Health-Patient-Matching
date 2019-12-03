@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import random, statistics
 
-def MACBanditModel:
+class MACBanditModel:
 
     def __init__(self, patient_data_dim, clinic_data_dim=5, lr=0.1, eps=0.5, decay=True):
         '''
