@@ -1,0 +1,21 @@
+import numpy as np
+
+def MACBanditModel:
+
+    def __init__(self, patient_data, clinic_data_dim=5):
+        self.patient_data = patient_data
+        
+        # preference weights take into account contextual info from patient and clinic
+        self.preferences = np.zeros(self.patient_data.shape[1] + clinic_data_dim)
+
+    def get_features(self, clinic):
+        ''' Returns concatenated feature vector containing patient and clinic data '''
+        return np.concatenate((self.patient_data, clinic))
+    
+    def update(self, clinic):
+        
+        self.preferences = self.preferences.dot
+
+    
+
+        
