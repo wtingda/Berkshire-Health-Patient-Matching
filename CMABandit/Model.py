@@ -104,8 +104,9 @@ class MACBanditModel:
             rating = self.get_rating(patient, chosen_clinic, ratingfunc)
             usr_regret = self.update(patient, chosen_clinic, rating)
             step_regret.append(usr_regret)
+            self.steps += 1
         self.update_regret(step_regret)
-        self.steps += 1
+
 
     def get_rating(self, patient, clinic, ratingfunc):
         return ratingfunc(patient, clinic)
