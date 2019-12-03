@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-import random, statistics
+import random, statistics, math
 
 class MACBanditModel:
 
-    def __init__(self, patient_data_dim, clinic_data_dim=5, lr=0.1, eps=0.5, decay=True):
+    def __init__(self, patient_data_dim, clinic_data_dim, lr=0.0001, eps=0.5, decay=True):
         '''
         Multi-armed Contextual Bandit model for matching patients with clinics
 
@@ -21,7 +21,7 @@ class MACBanditModel:
         self.preferences = np.zeros(patient_data_dim + clinic_data_dim)
 
         # number of steps taken
-        self.steps = 0
+        self.steps = 1
 
         # learning error/loss
         self.regret = []
@@ -40,12 +40,18 @@ class MACBanditModel:
         return np.concatenate((patient, clinic))
 
     def get_preference(self, patient, clinic):
-        ''' compute the preference dot product of features and learned preferences '''
-        return self.preferences.dot(self.get_features(patient, clinic))
-
-    def update_func(new_pref, rating):
-        ''' update function thatreturns weighted average of old and new preferences '''
-        return ((self.steps-1) / self.steps) * self.preferences + (1/self.steps) * new_pref * rating * self.lr
+        ''' 
+        compute the preference score dot product of features and learned preferences 
+        @returns
+          tuple (pref_score, new_features)
+        '''
+        new_features = self.get_features(patient, clinic)
+        new_pref_score = self.preferences.dot(new_features)
+        return new_pref_score, new_features
+    
+    def update_func(self, new_features, rating):
+        ''' update function that returns weighted average of old and new preferences '''
+        return ((self.steps-1) / self.steps) * self.preferences + (1/self.steps) * rating * self.lr * new_features 
 
     def update_regret(self, step_regret):
         '''
@@ -59,10 +65,11 @@ class MACBanditModel:
         @returns: regret as difference in
             predicted preference and true preference (rating)
         '''
-        new_pref = self.get_preference(patient, clinic)
-        self.preferences = self.update_func(new_pref, rating)
-        return rating - regret
-
+        new_pref, new_features = self.get_preference(patient, clinic.to_numpy()[0])
+        regret = rating - new_pref
+        self.preferences = self.update_func(new_features, rating)
+        return regret
+    
     def greedy_best(self, patient, clinics):
         '''
         finds clinic with highest preference and returns feature
@@ -70,14 +77,15 @@ class MACBanditModel:
         '''
         prefs = np.zeros(clinics.shape[0])
         for i, clinic in enumerate(clinics.iterrows()):
-            pref = self.get_preference(patient, clinic)
+            clinic = clinic[1]
+            pref, _ = self.get_preference(patient, clinic.to_numpy())
             prefs[i] = pref
         best = prefs.argmax()
         return clinics[clinics.index == clinics.index[best]]
 
     def eps_decay(self):
         ''' returns decaying eps value that decreases over time '''
-        return 1 / math.sqrt(self.steps + 1)
+        return 1 / math.sqrt(self.steps)
 
     def eps_greedy(self, patient, clinics):
         ''' epsilon-greedy strategy '''
@@ -87,13 +95,14 @@ class MACBanditModel:
         else:
             return self.greedy_best(patient, clinics)
 
-    def train_step(self, patients, clinics):
+    def train_step(self, patients, clinics, ratingfunc):
         ''' one training step that recommends to every patient once '''
         step_regret = []
-        for _, patient in enumerate(patients.iterrows()):
-            chosen_clinic = self.eps_greedy(patient, clinics)
-            rating = self.get_rating(patient, chosen_clinic)
-            usr_regret = self.update(clinic, rating)
+        for i, patient in enumerate(patients.iterrows()):
+            patient = patient[1]
+            chosen_clinic = self.eps_greedy(patient.to_numpy(), clinics)
+            rating = self.get_rating(patient, chosen_clinic, ratingfunc)
+            usr_regret = self.update(patient, chosen_clinic, rating)
             step_regret.append(usr_regret)
         self.update_regret(step_regret)
         self.steps += 1
@@ -101,16 +110,18 @@ class MACBanditModel:
     def get_rating(self, patient, clinic, ratingfunc):
         return ratingfunc(patient, clinic)
 
-    def train(self, patients, clinics, epochs=20, steps_per_epoch=5):
+    def train(self, patients, clinics, ratingfunc, epochs=20, steps_per_epoch=5, verbose=True):
         epoch_ave_regret = []
-        for _ in range(epochs):
+        for i in range(epochs):
             # reset steps and regret
-            self.steps = 0
+            self.steps = 1
             self.regret = []
 
             for step in range(steps_per_epoch):
-                self.train_step(patients, clinics)
+                self.train_step(patients, clinics, ratingfunc)
 
             # store average epoch regret
             epoch_ave_regret.append(statistics.mean(self.regret))
+            if verbose:
+                print("(Epoch %d)  Regret: %f"%(i, epoch_ave_regret[-1]))
         return epoch_ave_regret
