@@ -93,9 +93,7 @@ with open("berkshire.csv", 'r') as f:
 
 
 ####################################################################################
-# berkshire_coord = (42.3118, 73.1822)
-print("HERE")
-
+# berkshire_coord = (42.3118, -73.1822)
 gmap = gmplot.GoogleMapPlotter(gcoderesult[0]['geometry']['location']['lat'], gcoderesult[0]['geometry']['location']['lng'], 10.5)
 
 gmap.heatmap(patients_lat, patients_long)
@@ -103,7 +101,26 @@ gmap.heatmap(patients_lat, patients_long)
 for x,y in zip(clinics_lat, clinics_long):
     gmap.marker(x,y, "darkred")
 
-# todo: add outline on map
+def calc_dist(start, end): # start and end are each a coordiate of (lat, long)
+    d = gmaps.distance_matrix([str(start[0]) + " " + str(start[1])], [str(end[0]) + " " + str(end[1])], mode='driving')['rows'][0]['elements'][0]
+    dist =  d['distance']['value']
+    return {end: dist}
+
+def find_nearest(patient_coord, topk=1):
+    # dist = [geodesic(patient_coord, clinic).miles for clinic in clinics_coord]
+    # dist = [calc_dist(patient_coord, clinic) for clinic in clinics_coord]
+    dist = [calc_dist(patient_coord, clinic) for clinic in zip(clinics_lat, clinics_long)] # list of dicts
+    # return sorted(dist)[:topk]
+    return sorted(dist, key=lambda x: list(x.values())[0])[:topk]
+
+# patients_coord = zip(patients_lat, patients_long)
+print("\n\n")
+p1 = (42.0434466, -73.1208865) # some patient from berkshires.csv
+gmap.marker(p1[0], p1[1], "blue")
+p1_nearest = [list(d.keys())[0] for d in find_nearest(p1, 3)]
+print(p1_nearest)
+for x, y in p1_nearest:
+    gmap.marker(x,y, "green")
 
 gmap.apikey = "AIzaSyDE_MLUeIdpPgnCWEV-ZgscLCO1734Ax3w"
 
