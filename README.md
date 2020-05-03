@@ -5,6 +5,9 @@ Various models tested in the Python notebooks including supervised, semisupervis
 
 Also modeled the matching problem as a recommender using Multi-armed Contextual Bandits.
 
+## Heatmap
+Heatmap user interface for visualization and client interaction.
+
 ## Interface
 install kivy
 ```
